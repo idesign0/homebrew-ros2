@@ -1,14 +1,12 @@
 class Ros2Jazzy < Formula
   desc "Pre-built ROS 2 Jazzy libraries for macOS"
   homepage "https://github.com/idesign0/homebrew-ros2"
+  # Point to your jazzy branch
+  url "https://github.com/idesign0/homebrew-ros2.git", :branch => "jazzy"
   version "0.1.0"
 
-  head do
-    url "https://github.com/idesign0/homebrew-ros2.git", branch: "jazzy"
-  end
-
   def install
-    system "git", "lfs", "pull"
+    # This takes everything from your 'jazzy' branch and puts it in the Cellar
     prefix.install Dir["*"]
   end
 
