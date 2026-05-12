@@ -9,7 +9,9 @@ class Ros2Jazzy < Formula
   sha256 "d43ca720cbebce6633109ba5afa4d3e1acf3a48710a4cfcb0e8fe3835d066612"
 
   def install
-    prefix.install Dir["install/*"]
+    Dir.chdir("install") do
+      prefix.install Dir["*"]
+    end
   end
 
   def caveats
