@@ -9,7 +9,7 @@ class Ros2Kilted < Formula
   sha256 "4718539e6b55a51cf04a9b61992559df922eed03d7c4dd39f06c3d6eb5dc201c"
 
   def install
-    prefix.install Dir["install/*"]
+      prefix.install Dir["*"]
   end
 
   def caveats
