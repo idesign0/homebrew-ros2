@@ -9,7 +9,7 @@ class Ros2Humble < Formula
   sha256 "56b489393624e29bb3ab21717a52f92bd70d999f2dad300218806ff7de6d39aa"
 
   def install
-    prefix.install Dir["install/*"]
+      prefix.install Dir["*"]
   end
 
   def caveats
