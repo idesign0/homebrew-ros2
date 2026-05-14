@@ -105,39 +105,34 @@ class Ros2Kilted < Formula
     end
   
     ohai "Fixed #{fixed} missing symlink(s)." if fixed > 0
-  end
-  
-  def post_install
-    ohai "Checking for stale versioned library references..."
-    fixed = 0
-    patched = []
 
+    # --- Fix Boost: ensure install names and all references use @rpath ---  
+    ohai "Rewriting absolute Boost references in all dylibs..."
+    boost_fixed = 0
+    boost_patched = []
+  
     Dir.glob("#{lib}/**/*.dylib").reject { |f| File.symlink?(f) }.each do |our_lib|
+      changed = false
       Utils.popen_read("otool", "-L", our_lib).each_line do |line|
         dep_path = line.strip.split.first
-        next unless dep_path&.start_with?("#{HOMEBREW_PREFIX}/opt/")
-        next if dep_path.start_with?(opt_prefix.to_s)
-        next if File.exist?(dep_path)
-
-        dep_dir  = Pathname(dep_path).dirname
-        dep_name = Pathname(dep_path).basename.to_s
-        base     = dep_name.sub(/(\.\d+)+\.dylib$/, "")
-
-        actual = dep_dir.glob("#{base}.*.dylib").reject(&:symlink?).first
-        next unless actual
-
-        system "install_name_tool", "-change", dep_path, actual.to_s, our_lib
-        patched << our_lib unless patched.include?(our_lib)
-        ohai "Fixed: #{dep_name} → #{actual.basename} in #{File.basename(our_lib)}"
-        fixed += 1
+        next unless dep_path&.include?("libboost_")
+        next if dep_path.start_with?("@")
+  
+        basename = File.basename(dep_path)
+        next unless File.exist?("#{lib}/#{basename}")
+  
+        system "install_name_tool", "-change", dep_path, "@rpath/#{basename}", our_lib
+        changed = true
+        boost_fixed += 1
+      end
+      if changed
+        boost_patched << our_lib unless boost_patched.include?(our_lib)
       end
     end
-
-    if fixed > 0
-      ohai "Fixed #{fixed} stale reference(s). Re-signing #{patched.size} patched library/libraries..."
-      patched.each do |f|
-        system "codesign", "--force", "--sign", "-", f
-      end
+  
+    if boost_fixed > 0
+      ohai "Fixed #{boost_fixed} Boost reference(s). Re-signing #{boost_patched.size} library/libraries..."
+      boost_patched.each { |f| system "codesign", "--force", "--sign", "-", f }
     end
   end
 
