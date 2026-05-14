@@ -89,13 +89,13 @@ class Ros2Kilted < Formula
         source #{opt_prefix}/setup.bash
   
       Add the following to your ~/.zshrc (or ~/.bashrc) for Gazebo Sim Setup:
-        export GZ_SIM_SYSTEM_PLUGIN_PATH=#{opt_prefix}/lib/gz-sim-8/plugins
-        export GZ_SIM_PHYSICS_ENGINE_PATH=#{opt_prefix}/lib/gz-physics-7/engine-plugins
-        export GZ_SIM_RESOURCE_PATH=#{opt_prefix}/share/gz/gz-sim8/worlds:#{opt_prefix}/share/gz/gz-sim8/models
-        export GZ_GUI_PLUGIN_PATH=#{opt_prefix}/lib/gz-sim-8/plugins/gui:#{opt_prefix}/lib/gz-gui-8/plugins
-        export QML2_IMPORT_PATH=#{opt_prefix}/lib/gz-sim-8/plugins/gui
-        export GZ_RENDERING_PLUGIN_PATH=#{opt_prefix}/lib/gz-rendering-8/engine-plugins
-        export GZ_RENDERING_RESOURCE_PATH=#{opt_prefix}/share/gz/gz-rendering8
+        export GZ_SIM_SYSTEM_PLUGIN_PATH=#{opt_prefix}/lib/gz-sim-9/plugins
+        export GZ_SIM_PHYSICS_ENGINE_PATH=#{opt_prefix}/lib/gz-physics-8/engine-plugins
+        export GZ_SIM_RESOURCE_PATH=#{opt_prefix}/share/gz/gz-sim9/worlds:#{opt_prefix}/share/gz/gz-sim9/models
+        export GZ_GUI_PLUGIN_PATH=#{opt_prefix}/lib/gz-sim-9/plugins/gui:#{opt_prefix}/lib/gz-gui-9/plugins
+        export QML2_IMPORT_PATH=#{opt_prefix}/lib/gz-sim-9/plugins/gui
+        export GZ_RENDERING_PLUGIN_PATH=#{opt_prefix}/lib/gz-rendering-9/engine-plugins
+        export GZ_RENDERING_RESOURCE_PATH=#{opt_prefix}/share/gz/gz-rendering9
     EOS
   end
 end
