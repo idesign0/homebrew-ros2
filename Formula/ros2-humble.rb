@@ -70,30 +70,24 @@ class Ros2Humble < Formula
     Dir.glob("#{lib}/**/*.dylib").each do |our_lib|
       Utils.popen_read("otool", "-L", our_lib).each_line do |line|
         dep_path = line.strip.split.first
-        # Only care about external Homebrew deps that are missing
         next unless dep_path&.start_with?("#{HOMEBREW_PREFIX}/opt/")
         next if dep_path.start_with?(opt_prefix.to_s)
         next if File.exist?(dep_path)
   
         dep_dir  = Pathname(dep_path).dirname
         dep_name = Pathname(dep_path).basename.to_s
+        base     = dep_name.sub(/(\.\d+)+\.dylib$/, "")
   
-        # libjsoncpp.26.dylib → libjsoncpp
-        base = dep_name.sub(/(\.\d+)+\.dylib$/, "")
-  
-        # Find the actual installed dylib (non-symlink)
         actual = dep_dir.glob("#{base}.*.dylib").reject(&:symlink?).first
+        next unless actual
   
-        symlink = dep_dir/dep_name
+        # Create symlink inside our own lib/ instead of other formula's dir
+        symlink = lib/dep_name
         next if symlink.exist?
   
-        if actual
-          symlink.make_symlink(actual)
-          ohai "Linked #{dep_name} → #{actual.basename}"
-          fixed += 1
-        else
-          opoo "Cannot fix: #{dep_name} — no matching dylib found in #{dep_dir}"
-        end
+        symlink.make_symlink(actual)
+        ohai "Linked #{lib}/#{dep_name} → #{actual}"
+        fixed += 1
       end
     end
   
