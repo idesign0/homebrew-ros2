@@ -22,6 +22,7 @@ Instead of building ROS 2 from source (which is slow and error-prone on macOS), 
 ### 1. Add the Tap
 
 ```bash
+brew update
 brew tap idesign0/ros2
 ```
 
@@ -69,7 +70,6 @@ echo 'source $(brew --prefix)/opt/ros2-jazzy/setup.zsh' >> ~/.zshrc
 ## 🔄 Updating
 
 ```bash
-brew update
 brew upgrade ros2-jazzy
 ```
 
