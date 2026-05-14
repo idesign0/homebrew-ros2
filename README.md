@@ -45,11 +45,18 @@ brew install ros2-jazzy
 
 ## ⚙️ Environment Setup
 
-After installation, you need to source ROS 2:
+After installation, you need to source ROS 2 and Gazebo Paths:
 
 ```bash
-source $(brew --prefix)/opt/ros2-jazzy/setup.zsh
-```
+source /opt/homebrew/opt/ros2-humble/setup.bash
+
+export GZ_SIM_SYSTEM_PLUGIN_PATH=/opt/homebrew/opt/ros2-humble/lib/gz-sim-8/plugins
+export GZ_SIM_PHYSICS_ENGINE_PATH=/opt/homebrew/opt/ros2-humble/lib/gz-physics-7/engine-plugins
+export GZ_SIM_RESOURCE_PATH=/opt/homebrew/opt/ros2-humble/share/gz/gz-sim8/worlds:/opt/homebrew/opt/ros2-humble/share/gz/gz-sim8/models
+export GZ_GUI_PLUGIN_PATH=/opt/homebrew/opt/ros2-humble/lib/gz-sim-8/plugins/gui:/opt/homebrew/opt/ros2-humble/lib/gz-gui-8/plugins
+export QML2_IMPORT_PATH=/opt/homebrew/opt/ros2-humble/lib/gz-sim-8/plugins/gui
+export GZ_RENDERING_PLUGIN_PATH=/opt/homebrew/opt/ros2-humble/lib/gz-rendering-8/engine-plugins
+export GZ_RENDERING_RESOURCE_PATH=/opt/homebrew/opt/ros2-humble/share/gz/gz-rendering8
 
 ### Optional: Add to your shell config
 
