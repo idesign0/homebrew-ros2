@@ -66,27 +66,34 @@ class Ros2Humble < Formula
   def post_install
     ohai "Checking for stale versioned library references..."
     fixed = 0
-  
+    patched = Set.new
+
     Dir.glob("#{lib}/**/*.dylib").reject { |f| File.symlink?(f) }.each do |our_lib|
       Utils.popen_read("otool", "-L", our_lib).each_line do |line|
         dep_path = line.strip.split.first
         next unless dep_path&.start_with?("#{HOMEBREW_PREFIX}/opt/")
         next if dep_path.start_with?(opt_prefix.to_s)
         next if File.exist?(dep_path)
-  
+
         dep_dir  = Pathname(dep_path).dirname
         dep_name = Pathname(dep_path).basename.to_s
         base     = dep_name.sub(/(\.\d+)+\.dylib$/, "")
-  
+
         actual = dep_dir.glob("#{base}.*.dylib").reject(&:symlink?).first
         next unless actual
-  
+
         system "install_name_tool", "-change", dep_path, actual.to_s, our_lib
+        patched << our_lib
         ohai "Fixed: #{dep_name} → #{actual.basename} in #{File.basename(our_lib)}"
         fixed += 1
       end
     end
-  
+
+    # Re-sign only the dylibs we actually patched
+    patched.each do |f|
+      system "codesign", "--force", "--sign", "-", f
+    end
+
     ohai "Fixed #{fixed} stale reference(s)." if fixed > 0
   end
 
