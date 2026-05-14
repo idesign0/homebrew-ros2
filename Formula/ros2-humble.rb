@@ -64,10 +64,10 @@ class Ros2Humble < Formula
   end
 
   def post_install
-    ohai "Checking for missing versioned library symlinks..."
+    ohai "Checking for stale versioned library references..."
     fixed = 0
   
-    Dir.glob("#{lib}/**/*.dylib").each do |our_lib|
+    Dir.glob("#{lib}/**/*.dylib").reject { |f| File.symlink?(f) }.each do |our_lib|
       Utils.popen_read("otool", "-L", our_lib).each_line do |line|
         dep_path = line.strip.split.first
         next unless dep_path&.start_with?("#{HOMEBREW_PREFIX}/opt/")
@@ -81,17 +81,13 @@ class Ros2Humble < Formula
         actual = dep_dir.glob("#{base}.*.dylib").reject(&:symlink?).first
         next unless actual
   
-        # Create symlink inside our own lib/ instead of other formula's dir
-        symlink = lib/dep_name
-        next if symlink.exist?
-  
-        symlink.make_symlink(actual)
-        ohai "Linked #{lib}/#{dep_name} → #{actual}"
+        system "install_name_tool", "-change", dep_path, actual.to_s, our_lib
+        ohai "Fixed: #{dep_name} → #{actual.basename} in #{File.basename(our_lib)}"
         fixed += 1
       end
     end
   
-    ohai "Fixed #{fixed} missing symlink(s)." if fixed > 0
+    ohai "Fixed #{fixed} stale reference(s)." if fixed > 0
   end
 
   def caveats
