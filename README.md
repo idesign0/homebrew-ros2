@@ -19,14 +19,6 @@ Instead of building ROS 2 from source (which is slow and error-prone on macOS), 
 
 ## 📦 Installation
 
-## Dependencies
-
-Install required Homebrew packages for your ROS 2 distro (replace `jazzy` with your desired distro if needed):
-
-```bash
-curl -sSL https://raw.githubusercontent.com/idesign0/homebrew-ros2/main/scripts/install_ros2_deps.sh | bash -s jazzy
-```
-
 ### 1. Add the Tap
 
 ```bash
