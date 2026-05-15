@@ -95,35 +95,6 @@ class Ros2Humble < Formula
         system "codesign", "--force", "--sign", "-", f
       end
     end
-
-    # --- Fix Boost: ensure install names and all references use @rpath ---  
-    ohai "Rewriting absolute Boost references in all dylibs..."
-    boost_fixed = 0
-    boost_patched = []
-  
-    Dir.glob("#{lib}/**/*.dylib").reject { |f| File.symlink?(f) }.each do |our_lib|
-      changed = false
-      Utils.popen_read("otool", "-L", our_lib).each_line do |line|
-        dep_path = line.strip.split.first
-        next unless dep_path&.include?("libboost_")
-        next if dep_path.start_with?("@")
-  
-        basename = File.basename(dep_path)
-        next unless File.exist?("#{lib}/#{basename}")
-  
-        system "install_name_tool", "-change", dep_path, "@rpath/#{basename}", our_lib
-        changed = true
-        boost_fixed += 1
-      end
-      if changed
-        boost_patched << our_lib unless boost_patched.include?(our_lib)
-      end
-    end
-  
-    if boost_fixed > 0
-      ohai "Fixed #{boost_fixed} Boost reference(s). Re-signing #{boost_patched.size} library/libraries..."
-      boost_patched.each { |f| system "codesign", "--force", "--sign", "-", f }
-    end
   end
 
   def caveats
