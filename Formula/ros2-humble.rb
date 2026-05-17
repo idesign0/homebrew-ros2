@@ -95,6 +95,30 @@ class Ros2Humble < Formula
         system "codesign", "--force", "--sign", "-", f
       end
     end
+
+    # Add absolute RPATHs for vendor libs to fix dlopen security policy issue.
+    # macOS Hardened Runtime blocks @loader_path expansion for plugins loaded via dlopen.
+    ohai "Adding absolute vendor lib RPATHs for dlopen compatibility..."
+    vendor_fixed = 0
+    
+    Dir.glob("#{opt_prefix}/opt/*/lib").select { |d| File.directory?(d) }.each do |vendor_dir|
+      vendor_libs = Dir.glob("#{vendor_dir}/*.dylib").map { |f| File.basename(f) }
+      next if vendor_libs.empty?
+    
+      Dir.glob("#{lib}/**/*.dylib").reject { |f| File.symlink?(f) }.each do |our_lib|
+        refs = Utils.popen_read("otool", "-L", our_lib).lines.map { |l| l.strip.split.first }
+        next unless refs.any? { |r| r&.start_with?("@rpath/") && vendor_libs.include?(File.basename(r.to_s)) }
+    
+        existing = Utils.popen_read("otool", "-l", our_lib).scan(/path (.+) \(offset/).flatten
+        next if existing.include?(vendor_dir)
+    
+        system "install_name_tool", "-add_rpath", vendor_dir, our_lib
+        system "codesign", "--force", "--sign", "-", our_lib
+        vendor_fixed += 1
+      end
+    end
+    
+    ohai "Added absolute vendor RPATHs to #{vendor_fixed} library/libraries." if vendor_fixed > 0
   end
 
   def caveats
