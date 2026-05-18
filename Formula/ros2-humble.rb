@@ -47,6 +47,7 @@ class Ros2Humble < Formula
   depends_on "openssl@3"
   depends_on "openvdb"
   depends_on "pcl"
+  depends_on "python@3.11"
   depends_on "qhull"
   depends_on "qt@5"
   depends_on "qtbase"
