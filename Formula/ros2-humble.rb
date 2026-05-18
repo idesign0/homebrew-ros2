@@ -105,7 +105,7 @@ class Ros2Humble < Formula
       vendor_libs = Dir.glob("#{vendor_dir}/*.dylib").map { |f| File.basename(f) }
       next if vendor_libs.empty?
     
-      Dir.glob("#{lib}/**/*.dylib").reject { |f| File.symlink?(f) }.each do |our_lib|
+      Dir.glob("#{lib}/**/*.{dylib,so}").reject { |f| File.symlink?(f) }.each do |our_lib|
         refs = Utils.popen_read("otool", "-L", our_lib).lines.map { |l| l.strip.split.first }
         next unless refs.any? { |r| r&.start_with?("@rpath/") && vendor_libs.include?(File.basename(r.to_s)) }
     
