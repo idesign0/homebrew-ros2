@@ -101,7 +101,7 @@ class Ros2Humble < Formula
     ohai "Adding absolute vendor lib RPATHs for dlopen compatibility..."
     vendor_fixed = 0
     
-    Dir.glob("#{opt_prefix}/opt/*/lib").select { |d| File.directory?(d) }.each do |vendor_dir|
+    Dir.glob("#{opt_prefix}/opt/**/lib").select { |d| File.directory?(d) }.each do |vendor_dir|
       vendor_libs = Dir.glob("#{vendor_dir}/*.dylib").map { |f| File.basename(f) }
       next if vendor_libs.empty?
     
