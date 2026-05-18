@@ -137,7 +137,7 @@ class Ros2Humble < Formula
         export GZ_RENDERING_RESOURCE_PATH=#{opt_prefix}/share/gz/gz-rendering8
 
       Required Python dependencies (install once):
-      pip3 install \
+      pip3.11 install \
         empy==3.3.4 lark==1.1.1 catkin_pkg netifaces \
         osrf-pycommon PyYAML packaging psutil typeguard \
         jinja2 lxml
