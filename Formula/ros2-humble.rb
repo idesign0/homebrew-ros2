@@ -125,7 +125,7 @@ class Ros2Humble < Formula
   def caveats
     <<~EOS
       Source ROS 2 environment:
-        source #{opt_prefix}/setup.bash
+        source #{opt_prefix}/setup.zsh
   
       Add the following to your ~/.zshrc (or ~/.bashrc) for Gazebo Sim Setup:
         export GZ_SIM_SYSTEM_PLUGIN_PATH=/opt/homebrew/opt/ros2-humble/lib/gz-sim-8/plugins:/opt/homebrew/opt/ros2-humble/lib
