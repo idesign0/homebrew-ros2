@@ -73,7 +73,7 @@ class Ros2Jazzy < Formula
   def caveats
     <<~EOS
       Source ROS 2 environment:
-        source #{opt_prefix}/setup.bash
+        source #{opt_prefix}/setup.zsh
   
       Add the following to your ~/.zshrc (or ~/.bashrc) for Gazebo Sim Setup:
         export GZ_SIM_SYSTEM_PLUGIN_PATH=#{opt_prefix}/lib/gz-sim-8/plugins
