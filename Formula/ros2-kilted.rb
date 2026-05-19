@@ -2,11 +2,11 @@ class Ros2Kilted < Formula
   desc "ROS 2 Kilted for macOS"
   homepage "https://github.com/idesign0/homebrew-ros2"
 
-  version "26.05.18.109"
+  version "26.05.19.110"
 
   url "https://github.com/idesign0/homebrew-ros2/releases/download/kilted-#{version}/ros2-kilted-macos-#{version}.tar.gz"
 
-  sha256 "55c00868cc3447dc2a31a0a61b4dc0545dd2abe1ca6cc512f4e837726096858b"
+  sha256 "47e5107104002d12bd6e2abad723c1b79b27b1caf0227a6e4e1f3991fbd52e1f"
 
   depends_on "abseil"
   depends_on "assimp"
