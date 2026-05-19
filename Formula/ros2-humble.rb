@@ -126,6 +126,10 @@ class Ros2Humble < Formula
     <<~EOS
       Source ROS 2 environment:
         source #{opt_prefix}/setup.zsh
+
+      colcon argcomplete (must come after ROS source, needs bashcompinit for zsh)
+        autoload bashcompinit && bashcompinit
+        eval "$(register-python-argcomplete colcon)"
   
       Add the following to your ~/.zshrc (or ~/.bashrc) for Gazebo Sim Setup:
         export GZ_SIM_SYSTEM_PLUGIN_PATH=/opt/homebrew/opt/ros2-humble/lib/gz-sim-8/plugins:/opt/homebrew/opt/ros2-humble/lib
