@@ -10,7 +10,7 @@ Instead of building ROS 2 from source (which is slow and error-prone on macOS), 
 
 ## 🚀 What You Get
 
-- Prebuilt ROS 2 distributions (e.g. Jazzy)
+- Prebuilt ROS 2 distributions (e.g. humble)
 - Core ROS 2 tooling and ecosystem packages
 - macOS-specific fixes and toolchain adjustments
 - Faster installs (minutes instead of hours)
@@ -29,7 +29,7 @@ brew tap idesign0/ros2
 ### 2. Install ROS 2
 
 ```bash
-brew install ros2-jazzy
+brew install ros2-humble
 ```
 
 ---
@@ -42,6 +42,19 @@ brew install ros2-jazzy
 - Avoids full source compilation
 - Ensures consistency across systems
 
+---
+
+## Prerequisites
+
+### Python 3.11 (from python.org — required)
+
+This tap requires **Python 3.11 installed from [python.org](https://www.python.org/downloads/macos/)**, not Homebrew Python.
+
+Check if it's already installed:
+
+```bash
+ls /Library/Frameworks/Python.framework/Versions/3.11/bin/python3
+```
 ---
 
 ## ⚙️ Environment Setup
@@ -62,7 +75,7 @@ export GZ_RENDERING_RESOURCE_PATH=/opt/homebrew/opt/ros2-humble/share/gz/gz-rend
 ### Optional: Add to your shell config
 
 ```bash
-echo 'source $(brew --prefix)/opt/ros2-jazzy/setup.zsh' >> ~/.zshrc
+echo 'source $(brew --prefix)/opt/ros2-humble/setup.zsh' >> ~/.zshrc
 ```
 
 ---
@@ -70,7 +83,7 @@ echo 'source $(brew --prefix)/opt/ros2-jazzy/setup.zsh' >> ~/.zshrc
 ## 🔄 Updating
 
 ```bash
-brew upgrade ros2-jazzy
+brew upgrade ros2-humble
 ```
 
 ---
@@ -92,7 +105,7 @@ More distributions may be added in the future.
 ### ❌ Not linked properly
 
 ```bash
-brew link --overwrite ros2-jazzy
+brew link --overwrite ros2-humble
 ```
 
 ### ❌ Missing dependencies
@@ -108,7 +121,7 @@ brew install <missing-package>
 Make sure you sourced the setup script:
 
 ```bash
-source $(brew --prefix)/opt/ros2-jazzy/setup.zsh
+source $(brew --prefix)/opt/ros2-humble/setup.zsh
 ```
 
 ---
