@@ -138,14 +138,14 @@ class Ros2Kilted < Formula
         eval "$(register-python-argcomplete colcon)"
   
       Add the following to your ~/.zshrc (or ~/.bashrc) for Gazebo Sim Setup:
-        export GZ_CONFIG_PATH=#{opt_prefix}/share/gz
-        export GZ_SIM_SYSTEM_PLUGIN_PATH=#{opt_prefix}/lib/gz-sim-9/plugins
-        export GZ_SIM_PHYSICS_ENGINE_PATH=#{opt_prefix}/lib/gz-physics-8/engine-plugins
-        export GZ_SIM_RESOURCE_PATH=#{opt_prefix}/share/gz/gz-sim9/worlds
-        export GZ_GUI_PLUGIN_PATH=#{opt_prefix}/lib/gz-sim-9/plugins/gui:#{opt_prefix}/lib/gz-gui-9/plugins
-        export QML2_IMPORT_PATH=#{opt_prefix}/lib/gz-sim-9/plugins/gui
-        export GZ_RENDERING_PLUGIN_PATH=#{opt_prefix}/lib/gz-rendering-9/engine-plugins
-        export GZ_RENDERING_RESOURCE_PATH=#{opt_prefix}/share/gz/gz-rendering9
+        export GZ_CONFIG_PATH=$(brew --prefix ros2-kilted)/share/gz
+        export GZ_SIM_SYSTEM_PLUGIN_PATH=$(brew --prefix ros2-kilted)/lib/gz-sim-9/plugins
+        export GZ_SIM_PHYSICS_ENGINE_PATH=$(brew --prefix ros2-kilted)/lib/gz-physics-8/engine-plugins
+        export GZ_SIM_RESOURCE_PATH=$(brew --prefix ros2-kilted)/share/gz/gz-sim9/worlds
+        export GZ_GUI_PLUGIN_PATH=$(brew --prefix ros2-kilted)/lib/gz-sim-9/plugins/gui:$(brew --prefix ros2-kilted)/lib/gz-gui-9/plugins
+        export QML2_IMPORT_PATH=$(brew --prefix ros2-kilted)/lib/gz-sim-9/plugins/gui
+        export GZ_RENDERING_PLUGIN_PATH=$(brew --prefix ros2-kilted)/lib/gz-rendering-9/engine-plugins
+        export GZ_RENDERING_RESOURCE_PATH=$(brew --prefix ros2-kilted)/share/gz/gz-rendering9
     EOS
   end
 end
