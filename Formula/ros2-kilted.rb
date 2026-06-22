@@ -139,7 +139,7 @@ class Ros2Kilted < Formula
   
       Add the following to your ~/.zshrc (or ~/.bashrc) for Gazebo Sim Setup:
         export GZ_CONFIG_PATH=$(brew --prefix ros2-kilted)/share/gz
-        export GZ_SIM_SYSTEM_PLUGIN_PATH=$(brew --prefix ros2-kilted)/lib/gz-sim-9/plugins
+        export GZ_SIM_SYSTEM_PLUGIN_PATH=$(brew --prefix ros2-kilted)/lib/gz-sim-9/plugins:$(brew --prefix ros2-kilted)/lib
         export GZ_SIM_PHYSICS_ENGINE_PATH=$(brew --prefix ros2-kilted)/lib/gz-physics-8/engine-plugins
         export GZ_SIM_RESOURCE_PATH=$(brew --prefix ros2-kilted)/share/gz/gz-sim9/worlds
         export GZ_GUI_PLUGIN_PATH=$(brew --prefix ros2-kilted)/lib/gz-sim-9/plugins/gui:$(brew --prefix ros2-kilted)/lib/gz-gui-9/plugins
