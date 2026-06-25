@@ -46,15 +46,29 @@ brew install ros2-humble
 
 ## Prerequisites
 
-### Python 3.11 (from python.org — required)
+## Prerequisites
 
-This tap requires **Python 3.11 installed from [python.org](https://www.python.org/downloads/macos/)**, not Homebrew Python.
+### Python 3.11 (python.org — required)
 
-Check if it's already installed:
+This project requires **Python 3.11 from [python.org](https://www.python.org/downloads/macos/)**. Homebrew Python is not supported and must be unlinked to avoid conflicts.
 
+**1. Verify the framework Python is installed:**
 ```bash
 ls /Library/Frameworks/Python.framework/Versions/3.11/bin/python3
 ```
+
+**2. Unlink Homebrew Python** (adjust the version number if needed):
+```bash
+brew unlink python@3.14
+```
+
+**3. Confirm the correct Python is active:**
+```bash
+which python3
+# Expected: /Library/Frameworks/Python.framework/Versions/3.11/bin/python3
+```
+
+> **Why this matters:** Even after installing the framework Python, some packages will silently fall back to Homebrew Python if it's still linked. Unlinking it ensures the entire toolchain uses the correct interpreter.
 ---
 
 ## ⚙️ Environment Setup
@@ -101,6 +115,13 @@ More distributions may be added in the future.
 ---
 
 ## 🛠 Troubleshooting
+
+### ❌ catkin_pkg not found
+
+```bash
+# python version can change. it should be confirmed from error log
+brew unlink python3.14 
+```
 
 ### ❌ Not linked properly
 
