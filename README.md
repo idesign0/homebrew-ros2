@@ -76,7 +76,7 @@ which python3
 After installation, you need to source ROS 2 and Gazebo Paths:
 
 ```bash
-source /opt/homebrew/opt/ros2-humble/setup.bash
+source /opt/homebrew/opt/ros2-humble/setup.zsh
 
 export GZ_SIM_SYSTEM_PLUGIN_PATH=/opt/homebrew/opt/ros2-humble/lib/gz-sim-8/plugins
 export GZ_SIM_PHYSICS_ENGINE_PATH=/opt/homebrew/opt/ros2-humble/lib/gz-physics-7/engine-plugins
