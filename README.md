@@ -29,6 +29,7 @@ brew tap idesign0/ros2
 ### 2. Install ROS 2
 
 ```bash
+brew trust idesign0/ros2   # required for third-party taps
 brew install ros2-humble
 ```
 
