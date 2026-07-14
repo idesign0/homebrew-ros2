@@ -47,29 +47,47 @@ brew install ros2-humble
 
 ## Prerequisites
 
-## Prerequisites
-
 ### Python 3.11 (python.org — required)
 
-This project requires **Python 3.11 from [python.org](https://www.python.org/downloads/macos/)**. Homebrew Python is not supported and must be unlinked to avoid conflicts.
+This project requires **Python 3.11 from [python.org](https://www.python.org/downloads/macos/)**.
 
-**1. Verify the framework Python is installed:**
-```bash
-ls /Library/Frameworks/Python.framework/Versions/3.11/bin/python3
-```
+> ⚠️ **Homebrew Python is NOT supported** (`brew install python@3.11` will not work). The prebuilt ROS 2 binaries are linked against the python.org framework Python at `/Library/Frameworks/Python.framework/Versions/3.11/`. Homebrew Python lives at a different path and must be unlinked to avoid conflicts.
+
+**1. Install Python 3.11 from python.org:**
+
+Download the **macOS 64-bit universal2 installer** from https://www.python.org/downloads/macos/ and:
+
+1. Run the Installation Wizard (default settings)
+2. Run `Install Certificates.command` from `/Applications/Python 3.11/`
+3. Run `Update Shell Profile.command` (or add the PATH manually, see step 3 below)
 
 **2. Unlink Homebrew Python** (adjust the version number if needed):
 ```bash
 brew unlink python@3.14
 ```
 
-**3. Confirm the correct Python is active:**
+**3. Add Python 3.11 to your `~/.zshrc`:**
+```zsh
+# Python 3.11 framework path
+export PATH="/Library/Frameworks/Python.framework/Versions/3.11/bin:$HOME/Library/Python/3.11/bin:$PATH"
+
+# Python pip aliases for convenience
+alias pip3.11="python3.11 -m pip"
+```
+
+> 💡 Use `python3 -m pip` (instead of just `pip`) to avoid confusion between Python installations. Do **not** add aliases like `alias python3=python3.11` — the PATH export above is enough, and aliases interfere with the verification below.
+
+**4. Confirm the correct Python is active** (open a new terminal first):
 ```bash
 which python3
 # Expected: /Library/Frameworks/Python.framework/Versions/3.11/bin/python3
+
+which pip
+# Expected: /Library/Frameworks/Python.framework/Versions/3.11/bin/pip
 ```
 
-> **Why this matters:** Even after installing the framework Python, some packages will silently fall back to Homebrew Python if it's still linked. Unlinking it ensures the entire toolchain uses the correct interpreter.
+> **Why this matters:** The ROS 2 executables and linked libraries resolve against the framework Python. Even after installing it, some packages will silently fall back to Homebrew Python if it's still linked. Unlinking it ensures the entire toolchain uses the correct interpreter.
+
 ---
 
 ## ⚙️ Environment Setup
@@ -86,6 +104,7 @@ export GZ_GUI_PLUGIN_PATH=/opt/homebrew/opt/ros2-humble/lib/gz-sim-8/plugins/gui
 export QML2_IMPORT_PATH=/opt/homebrew/opt/ros2-humble/lib/gz-sim-8/plugins/gui
 export GZ_RENDERING_PLUGIN_PATH=/opt/homebrew/opt/ros2-humble/lib/gz-rendering-8/engine-plugins
 export GZ_RENDERING_RESOURCE_PATH=/opt/homebrew/opt/ros2-humble/share/gz/gz-rendering8
+```
 
 ### Optional: Add to your shell config
 
@@ -117,11 +136,15 @@ More distributions may be added in the future.
 
 ## 🛠 Troubleshooting
 
+### ❌ bad interpreter: /Library/Frameworks/Python.framework/Versions/3.11/bin/python3: no such file or directory
+
+Python 3.11 from python.org is not installed. Homebrew's `python@3.11` will **not** fix this — install the framework Python from https://www.python.org/downloads/macos/ and follow the [Prerequisites](#prerequisites) section above.
+
 ### ❌ catkin_pkg not found
 
 ```bash
 # python version can change. it should be confirmed from error log
-brew unlink python3.14 
+brew unlink python@3.14
 ```
 
 ### ❌ Not linked properly
