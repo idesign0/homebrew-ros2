@@ -2,11 +2,11 @@ class Ros2Jazzy < Formula
   desc "ROS 2 Jazzy for macOS"
   homepage "https://github.com/idesign0/homebrew-ros2"
 
-  version "26.07.17.86"
+  version "26.07.18.87"
 
   url "https://github.com/idesign0/homebrew-ros2/releases/download/jazzy-#{version}/ros2-jazzy-macos-#{version}.tar.gz"
 
-  sha256 "e75b4b539751c33ac89ef6c23406026eb162ffe7b1e79618165e77677e442a2c"
+  sha256 "8fe0c79a71e5e6d662ffe3c702366c2287a83e2df3277a116e26eccb1a45b575"
 
   def install
       prefix.install Dir["*"]
