@@ -2,11 +2,11 @@ class Ros2Humble < Formula
   desc "ROS 2 Humble for macOS"
   homepage "https://github.com/idesign0/homebrew-ros2"
 
-  version "26.07.27.200"
+  version "26.07.28.201"
 
   url "https://github.com/idesign0/homebrew-ros2/releases/download/humble-#{version}/ros2-humble-macos-#{version}.tar.gz"
 
-  sha256 "7591955d6e9b116d00d6260398647aca3ff56266a4582c35be68e9e996bd5335"
+  sha256 "69d50d9d13cd36fb0bd1f46cde3854da9e58ce474c9e451fbdb5ec30e277b09c"
 
   depends_on "abseil"
   depends_on "assimp"
