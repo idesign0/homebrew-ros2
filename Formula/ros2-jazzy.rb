@@ -2,11 +2,11 @@ class Ros2Jazzy < Formula
   desc "ROS 2 Jazzy for macOS"
   homepage "https://github.com/idesign0/homebrew-ros2"
 
-  version "26.07.30.104"
+  version "26.07.31.106"
 
   url "https://github.com/idesign0/homebrew-ros2/releases/download/jazzy-#{version}/ros2-jazzy-macos-#{version}.tar.gz"
 
-  sha256 "bf6b62f126577ae2697b052b5fe13d01854890fa57f42d93513064eda5bb26f3"
+  sha256 "8dfe22f0b08712b27fabfc8521d86dfbab948d4b25a7280dc52231a9a21af070"
 
   depends_on "abseil"
   depends_on "assimp"
