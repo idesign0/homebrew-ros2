@@ -159,10 +159,29 @@ Python 3.11 from python.org is not installed. Homebrew's `python@3.11` will **no
 brew unlink python@3.14
 ```
 
-### ❌ Not linked properly
+### ❌ `is already installed, it's just not linked`
+
+**That is expected and correct.** These formulae are **keg-only**: they are
+deliberately not symlinked into `/opt/homebrew`.
+
+The release tarball is a full colcon install tree, so it also contains copies of
+`protoc`, `protoc-gen-upb`, `check_urdf`, `urdf_to_graphiz`, `binvox2bt`, `gz` and the
+`GeographicLib` / `benchmark` headers — all of which belong to other Homebrew formulae.
+
+> ⚠️ **Do not run `brew link --overwrite`.** It hands those shared names to ROS 2
+> system-wide. For `protoc` that means every other formula resolves ROS 2's copy, which
+> is built against a different `abseil` than the one Homebrew ships and fails to start
+> outside a sourced ROS environment:
+> ```
+> dyld: Library not loaded: .../libabsl_die_if_null.2601.0.0.dylib
+> ```
+> If you ran it before, undo it once with `brew unlink ros2-humble`.
+
+Nothing needs linking — ROS 2 is reached by sourcing the environment, which works with
+`/opt/homebrew/bin` not on `PATH` at all:
 
 ```bash
-brew link --overwrite ros2-humble
+source $(brew --prefix)/opt/ros2-humble/setup.zsh
 ```
 
 ### ❌ Missing dependencies

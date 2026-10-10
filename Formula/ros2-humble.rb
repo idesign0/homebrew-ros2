@@ -8,6 +8,35 @@ class Ros2Humble < Formula
 
   sha256 "b2e8ffe976262633ec083ca61814b86739f45826d1598fb67dbcf48f256359b1"
 
+  # Deliberately NOT linked into HOMEBREW_PREFIX.
+  #
+  # The release tarball is a whole colcon install tree, so `prefix.install Dir["*"]`
+  # also ships copies of programs and headers that our OWN declared dependencies
+  # provide. Linking the keg makes those copies win the shared names:
+  #   bin/protoc, bin/protoc-gen-upb      <- protobuf
+  #   bin/check_urdf, bin/urdf_to_graphiz <- urdfdom
+  #   bin/binvox2bt                       <- octomap
+  #   bin/gz                              <- gz-tools
+  #   include/GeographicLib/*             <- geographiclib
+  #   include/benchmark/*                 <- google-benchmark
+  # On a machine where `brew link --overwrite` had been run, 81 entries in
+  # /opt/homebrew/bin pointed into this keg, and `protoc` could not even start
+  # outside a sourced ROS environment:
+  #   dyld: Library not loaded: .../libabsl_die_if_null.2601.0.0.dylib
+  # because it was built against a different abseil soname than the one brew ships.
+  # Reported in idesign0/ros2_macOS#8.
+  #
+  # Nothing is lost by not linking. setup.zsh resolves its own location
+  # (COLCON_CURRENT_PREFIX) and prepends this keg's bin to PATH along with
+  # AMENT_PREFIX_PATH, PYTHONPATH and the library paths, so `ros2` works with
+  # /opt/homebrew/bin absent from PATH entirely. Homebrew still creates
+  # opt/<name> for keg-only formulae, which is what setup.zsh and the GZ_* exports
+  # below reference. The `ros2` symlink that linking provided did not even function
+  # without sourcing -- it failed in importlib.
+  keg_only "it ships copies of files its own dependencies also provide " \
+           "(protoc, check_urdf, binvox2bt, gz, GeographicLib and benchmark " \
+           "headers), and ROS 2 is used by sourcing setup.zsh rather than by linking"
+
   depends_on "abseil"
   depends_on "assimp"
   depends_on "bullet"
@@ -124,6 +153,12 @@ class Ros2Humble < Formula
 
   def caveats
     <<~EOS
+      This formula is keg-only, so it is not symlinked into #{HOMEBREW_PREFIX}.
+      That is expected -- do NOT run `brew link --overwrite`; it would hand
+      protoc, check_urdf, binvox2bt and gz to this keg system-wide.
+      If you linked it previously, undo that once with:
+        brew unlink #{name}
+
       Source ROS 2 environment:
         source #{opt_prefix}/setup.zsh
 
