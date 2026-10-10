@@ -102,6 +102,26 @@ which pip
 
 ---
 
+### Python dependencies (required)
+
+Install these once, into the python.org 3.11. The ROS 2 CLI will not run without them,
+and they surface one at a time as you use different subcommands — `No module named
+'yaml'`, then `'packaging'`, then `Failed to load entry point 'launch': No module named
+'lark'`, then `'doctor': No module named 'numpy'`.
+
+```bash
+pip3.11 install empy==3.3.4 lark==1.1.1 catkin_pkg netifaces osrf-pycommon \
+  PyYAML packaging psutil typeguard jinja2 lxml numpy
+```
+
+Verify — this should print with no `Failed to load entry point` lines:
+
+```bash
+ros2 --help
+```
+
+---
+
 ## ⚙️ Environment Setup
 
 After installation, you need to source ROS 2 and Gazebo Paths:
@@ -184,9 +204,13 @@ Nothing needs linking — ROS 2 is reached by sourcing the environment, which wo
 source $(brew --prefix)/opt/ros2-humble/setup.zsh
 ```
 
-### ❌ Missing dependencies
+### ❌ `ModuleNotFoundError` / `Failed to load entry point`
 
-Run:
+These are **Python** modules, not Homebrew formulae — `brew install` will not fix them.
+Install the list in [Python dependencies](#python-dependencies-required) into the
+python.org 3.11.
+
+### ❌ A missing C/C++ library
 
 ```bash
 brew install <missing-package>

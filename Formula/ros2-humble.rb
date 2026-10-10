@@ -89,11 +89,32 @@ class Ros2Humble < Formula
   depends_on "zeromq"
   depends_on "zstd"
   
+  # The console scripts hard-code this interpreter in their shebang (26 of them in the
+  # jazzy keg), so if it is absent the failure surfaces much later and cryptically:
+  #   zsh: .../bin/ros2: bad interpreter:
+  #        /Library/Frameworks/Python.framework/Versions/3.11/bin/python3: no such file
+  # Homebrew's python@3.11 is NOT a substitute -- it lives elsewhere and these binaries
+  # were built against the python.org framework build. Reported in idesign0/ros2_macOS#8.
+  FRAMEWORK_PYTHON = "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3"
+
   def install
       prefix.install Dir["*"]
   end
 
   def post_install
+    # A warning, not a failure: the files are installed correctly either way, and the
+    # user can satisfy this afterwards without reinstalling.
+    unless File.exist?(FRAMEWORK_PYTHON)
+      opoo <<~MSG
+        Python 3.11 from python.org was not found at
+          #{FRAMEWORK_PYTHON}
+        The ros2 CLI will fail with "bad interpreter" until it is installed. Get the
+        macOS 64-bit universal2 installer from https://www.python.org/downloads/macos/
+        and run Install Certificates.command afterwards.
+        Homebrew's python@3.11 will not work -- see the tap README.
+      MSG
+    end
+
     ohai "Checking for stale versioned library references..."
     fixed = 0
     patched = []
@@ -175,11 +196,8 @@ class Ros2Humble < Formula
         export GZ_RENDERING_PLUGIN_PATH=#{opt_prefix}/lib/gz-rendering-8/engine-plugins
         export GZ_RENDERING_RESOURCE_PATH=#{opt_prefix}/share/gz/gz-rendering8
 
-      Required Python dependencies (install once):
-      pip3.11 install \
-        empy==3.3.4 lark==1.1.1 catkin_pkg netifaces \
-        osrf-pycommon PyYAML packaging psutil typeguard \
-        jinja2 lxml
+      Required Python dependencies (install once, into the python.org 3.11):
+      pip3.11 install empy==3.3.4 lark==1.1.1 catkin_pkg netifaces osrf-pycommon PyYAML packaging psutil typeguard jinja2 lxml numpy
     EOS
   end
 end
