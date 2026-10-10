@@ -29,9 +29,21 @@ brew tap idesign0/ros2
 ### 2. Install ROS 2
 
 ```bash
-brew trust idesign0/ros2   # required for third-party taps
+# Both taps must be trusted. Since Homebrew 4.x, loading ANY formula from an
+# untrusted third-party tap is refused, and these formulae depend on Ogre from
+# osrf/simulation, so trusting this tap alone is not enough:
+#   Error: Refusing to load formula osrf/simulation/ogre2.3 from untrusted tap
+brew trust idesign0/ros2
+brew trust osrf/simulation
+
 brew install ros2-humble
 ```
+
+> **Why several `osrf/simulation` formulae appear in the refusal messages.**
+> Homebrew refuses to *load* any formula from an untrusted tap while it resolves
+> dependencies, so names like `ogre2.2`, `sdformat14` and `gz-cmake3` can show up even
+> though ROS 2 only depends on `ogre1.9` and `ogre2.3`. Trusting the tap once clears all
+> of them; you do not need to install those formulae yourself.
 
 ---
 
