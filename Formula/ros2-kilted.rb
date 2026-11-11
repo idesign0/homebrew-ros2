@@ -96,7 +96,7 @@ class Ros2Kilted < Formula
       missing; nothing is needed just to run ROS 2.
 
       Required Python dependencies (install once, into the python.org 3.11):
-      pip3.11 install empy==3.3.4 lark==1.1.1 catkin_pkg netifaces osrf-pycommon PyYAML packaging psutil typeguard jinja2 lxml numpy
+      pip3.11 install empy==3.3.4 lark==1.1.1 catkin_pkg netifaces osrf-pycommon PyYAML packaging psutil typeguard jinja2 lxml numpy argcomplete typing_extensions
     EOS
   end
 end
