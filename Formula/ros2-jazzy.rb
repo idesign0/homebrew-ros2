@@ -45,6 +45,12 @@ class Ros2Jazzy < Formula
   # only added a second copy of Qt, VTK, OpenCV, PCL... that nothing in the keg loads.
   depends_on arch: :arm64
 
+  # Vendored dylibs keep their @rpath install names where the header has no room for
+  # the absolute one (the committed boost-1.89 build); without this, brew's relocation
+  # aborts the install with MachO::HeaderPadError. Every other dylib already carries
+  # the ID brew would set.
+  preserve_rpath
+
   # The console scripts hard-code this interpreter in their shebang (26 of them in the
   # jazzy keg), so if it is absent the failure surfaces much later and cryptically:
   #   zsh: .../bin/ros2: bad interpreter:
