@@ -2,11 +2,11 @@ class Ros2Kilted < Formula
   desc "ROS 2 Kilted for macOS"
   homepage "https://github.com/idesign0/homebrew-ros2"
 
-  version "26.11.12.16"
+  version "26.11.15.20"
 
   url "https://github.com/idesign0/homebrew-ros2/releases/download/kilted-#{version}/ros2-kilted-macos-#{version}.tar.gz"
 
-  sha256 "265d78d8b18c23883a61d565f7f0a95e183a5e1b86d1da22fe96354eca57f56e"
+  sha256 "840f6027fcf1757c38724b1d62eb4e2cd8077a4a9b36ddb1fc9892e2a181d13b"
 
   # Deliberately NOT linked into HOMEBREW_PREFIX.
   #
@@ -44,6 +44,12 @@ class Ros2Kilted < Formula
   # The 57 depends_on this used to carry were the BUILD machine's link set; installing them
   # only added a second copy of Qt, VTK, OpenCV, PCL... that nothing in the keg loads.
   depends_on arch: :arm64
+
+  # Vendored dylibs keep their @rpath install names where the header has no room for
+  # the absolute one (the committed boost-1.89 build); without this, brew's relocation
+  # aborts the install with MachO::HeaderPadError. Every other dylib already carries
+  # the ID brew would set.
+  preserve_rpath
 
   # The console scripts hard-code this interpreter in their shebang (26 of them in the
   # jazzy keg), so if it is absent the failure surfaces much later and cryptically:
