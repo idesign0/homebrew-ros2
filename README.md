@@ -159,6 +159,26 @@ export GZ_RENDERING_RESOURCE_PATH=/opt/homebrew/opt/ros2-humble/share/gz/gz-rend
 
 `brew info ros2-<distro>` always shows the setup for the version you have installed.
 
+### Middleware for large launches (Nav2, TurtleBot, MoveIt)
+
+For launches with dozens of nodes, Cyclone DDS with this profile is the most reliable setup we
+have found on macOS:
+
+```bash
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+export CYCLONEDDS_URI='<CycloneDDS><Domain><General><Interfaces><NetworkInterface name="lo0" multicast="true"/></Interfaces></General><Discovery><ParticipantIndex>none</ParticipantIndex></Discovery></Domain></CycloneDDS>'
+```
+
+- `ParticipantIndex none`: Cyclone's default per-process index pool runs out with big launches
+  ("Failed to find a free participant index").
+- `lo0`: discovery multicast stays on the Mac's loopback. Over Wi-Fi it is lossy, and a
+  TurtleBot 4 + Nav2 sim then took anywhere from 20 s to several minutes to come up, or never
+  did. With `lo0` it comes up in the same time every run.
+- This is for nodes on one Mac. To reach another computer or a robot, remove the
+  `<General>...</General>` part.
+- Don't combine it with `ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST`: that turns multicast off,
+  and with `ParticipantIndex none` nothing is discovered.
+
 ### Optional: Add to your shell config
 
 ```bash
