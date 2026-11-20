@@ -51,6 +51,12 @@ class Ros2Jazzy < Formula
   # the ID brew would set.
   preserve_rpath
 
+  # Homebrew's cleaner deletes every .la file in a keg. GraphicsMagick (vendored for
+  # nav2 map_server and others) loads each image coder through its .la via libltdl
+  # (vendor/lib/GraphicsMagick/modules-Q16/coders/pnm.la ...); without them it reports
+  # "No decode delegate for this image format" and map_server cannot read a .pgm map.
+  skip_clean :la
+
   # The console scripts hard-code this interpreter in their shebang (26 of them in the
   # jazzy keg), so if it is absent the failure surfaces much later and cryptically:
   #   zsh: .../bin/ros2: bad interpreter:
