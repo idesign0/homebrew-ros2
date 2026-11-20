@@ -124,11 +124,30 @@ ros2 --help
 
 ## ⚙️ Environment Setup
 
-After installation, you need to source ROS 2 and Gazebo Paths:
+Source the distribution you installed:
 
 ```bash
-source /opt/homebrew/opt/ros2-humble/setup.zsh
+source /opt/homebrew/opt/ros2-jazzy/setup.zsh     # or ros2-kilted / ros2-humble
+```
 
+### Gazebo
+
+**Jazzy and Kilted: nothing to export.** Gazebo ships inside the keg (`opt/gz_*_vendor`), and
+`setup.zsh` sets its plugin, resource and config paths. Do not export `GZ_*` or
+`QML2_IMPORT_PATH` yourself. If your `~/.zshrc` still has the exports from an older version of
+this README, delete them: they point at `share/gz` and `lib/gz-*` paths that no longer exist,
+and the Gazebo window opens with an empty 3D view.
+
+Check, after sourcing:
+
+```bash
+echo $GZ_CONFIG_PATH | tr ':' '\n' | head -3
+# Expected: /opt/homebrew/opt/ros2-jazzy/opt/gz_..._vendor/share/gz lines
+```
+
+**Humble** (release 26.10.12.325) is still packaged the old way and needs the exports:
+
+```bash
 export GZ_SIM_SYSTEM_PLUGIN_PATH=/opt/homebrew/opt/ros2-humble/lib/gz-sim-8/plugins
 export GZ_SIM_PHYSICS_ENGINE_PATH=/opt/homebrew/opt/ros2-humble/lib/gz-physics-7/engine-plugins
 export GZ_SIM_RESOURCE_PATH=/opt/homebrew/opt/ros2-humble/share/gz/gz-sim8/worlds:/opt/homebrew/opt/ros2-humble/share/gz/gz-sim8/models
@@ -138,10 +157,12 @@ export GZ_RENDERING_PLUGIN_PATH=/opt/homebrew/opt/ros2-humble/lib/gz-rendering-8
 export GZ_RENDERING_RESOURCE_PATH=/opt/homebrew/opt/ros2-humble/share/gz/gz-rendering8
 ```
 
+`brew info ros2-<distro>` always shows the setup for the version you have installed.
+
 ### Optional: Add to your shell config
 
 ```bash
-echo 'source $(brew --prefix)/opt/ros2-humble/setup.zsh' >> ~/.zshrc
+echo 'source $(brew --prefix)/opt/ros2-jazzy/setup.zsh' >> ~/.zshrc
 ```
 
 ---
@@ -167,6 +188,12 @@ More distributions may be added in the future.
 ---
 
 ## 🛠 Troubleshooting
+
+### ❌ Gazebo opens but the 3D view is empty (Jazzy / Kilted)
+
+Old `GZ_*` / `QML2_IMPORT_PATH` exports in `~/.zshrc` override the paths `setup.zsh` sets, so
+Gazebo cannot find its Ogre shaders. Delete those lines, open a new terminal and source
+`setup.zsh` again. See [Gazebo](#gazebo).
 
 ### ❌ bad interpreter: /Library/Frameworks/Python.framework/Versions/3.11/bin/python3: no such file or directory
 
