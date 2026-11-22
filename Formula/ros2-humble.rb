@@ -51,6 +51,12 @@ class Ros2Humble < Formula
   # the ID brew would set.
   preserve_rpath
 
+  # Homebrew's cleaner deletes every .la file in a keg. GraphicsMagick (vendored for
+  # nav2 map_server and others) loads each image coder through its .la via libltdl
+  # (vendor/lib/GraphicsMagick/modules-Q16/coders/pnm.la ...); without them it reports
+  # "No decode delegate for this image format" and map_server cannot read a .pgm map.
+  skip_clean :la
+
   # The console scripts hard-code this interpreter in their shebang (26 of them in the
   # jazzy keg), so if it is absent the failure surfaces much later and cryptically:
   #   zsh: .../bin/ros2: bad interpreter:
@@ -86,23 +92,36 @@ class Ros2Humble < Formula
       If you linked it previously, undo that once with:
         brew unlink #{name}
 
-      Source ROS 2 environment:
+      Add to ~/.zshrc (in this order), then open a new terminal:
+
+        # python.org 3.11 (pip3.11, colcon); skip if `which pip3.11` already works
+        export PATH="/Library/Frameworks/Python.framework/Versions/3.11/bin:$PATH"
+
+        # ROS 2 Humble
         source #{opt_prefix}/setup.zsh
 
-      colcon argcomplete (must come after ROS source, needs bashcompinit for zsh)
+        # colcon tab completion (after the source line)
         autoload bashcompinit && bashcompinit
         eval "$(register-python-argcomplete colcon)"
+
+        # Cyclone DDS, the most reliable middleware for big launches (Nav2, MoveIt)
+        export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+        # all nodes on this Mac: loopback
+        export CYCLONEDDS_URI='<CycloneDDS><Domain><General><Interfaces><NetworkInterface name="lo0" multicast="true"/></Interfaces></General><Discovery><ParticipantIndex>none</ParticipantIndex></Discovery></Domain></CycloneDDS>'
+        # nodes on other machines too: use your network interface instead of lo0
+        # (find it with: route get default | grep interface), e.g. en0:
+        # export CYCLONEDDS_URI='<CycloneDDS><Domain><General><Interfaces><NetworkInterface name="en0" multicast="true"/></Interfaces></General><Discovery><ParticipantIndex>none</ParticipantIndex></Discovery></Domain></CycloneDDS>'
+        # do not combine with ROS_LOCALHOST_ONLY=1
+
+      Required Python dependencies (install once, into the python.org 3.11):
+        pip3.11 install empy==3.3.4 lark==1.1.1 catkin_pkg netifaces osrf-pycommon PyYAML packaging psutil typeguard jinja2 lxml numpy argcomplete typing_extensions
 
       Gazebo needs no extra exports: setup.zsh sets the plugin, resource and install-prefix
       paths for the gz copy inside this keg. Exports from older caveats (GZ_SIM_*_PATH,
       GZ_CONFIG_PATH, QML2_IMPORT_PATH, ...) point at a second gz copy -- remove them.
 
-      Building your own packages against this keg needs the usual build tools
-      (brew install cmake ninja pkgconf) and whatever headers find_package() reports
-      missing; nothing is needed just to run ROS 2.
-
-      Required Python dependencies (install once, into the python.org 3.11):
-      pip3.11 install empy==3.3.4 lark==1.1.1 catkin_pkg netifaces osrf-pycommon PyYAML packaging psutil typeguard jinja2 lxml numpy argcomplete typing_extensions
+      Building your own packages needs cmake ninja pkgconf (brew install ...) and
+      whatever headers find_package() reports missing; nothing is needed just to run ROS 2.
     EOS
   end
 end
