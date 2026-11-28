@@ -2,11 +2,11 @@ class Ros2Humble < Formula
   desc "ROS 2 Humble for macOS"
   homepage "https://github.com/idesign0/homebrew-ros2"
 
-  version "26.10.12.325"
+  version "26.11.28.3"
 
-  url "https://github.com/idesign0/homebrew-ros2/releases/download/humble-#{version}/ros2-humble-macos-#{version}.tar.gz"
+  url "https://github.com/idesign0/homebrew-ros2/releases/download/humble-#{version}/ros2-humble-macos-#{version}.tar.xz"
 
-  sha256 "a33482f7a77035c4c43cfaf3b1ea2230b9c0917bf727f47fe9f6ef016bb16b86"
+  sha256 "ec37d85051aaffbe77bb805f21a96865fc2a83d548f6097541814f22da232147"
 
   # Deliberately NOT linked into HOMEBREW_PREFIX.
   #
@@ -37,58 +37,26 @@ class Ros2Humble < Formula
            "(protoc, check_urdf, binvox2bt, gz, GeographicLib and benchmark " \
            "headers), and ROS 2 is used by sourcing setup.zsh rather than by linking"
 
-  depends_on "abseil"
-  depends_on "assimp"
-  depends_on "bullet"
-  depends_on "console_bridge"
-  depends_on "dartsim"
-  depends_on "fcl"
-  depends_on "ffmpeg"
-  depends_on "flann"
-  depends_on "fmt"
-  depends_on "freeglut"
-  depends_on "freeimage"
-  depends_on "freetype"
-  depends_on "gdal"
-  depends_on "gettext"
-  depends_on "gflags"
-  depends_on "glew"
-  depends_on "glib"
-  depends_on "glog"
-  depends_on "gpsd"
-  depends_on "graphicsmagick"
-  depends_on "gts"
-  depends_on "jsoncpp"
-  depends_on "libccd"
-  depends_on "libomp"
-  depends_on "libpng"
-  depends_on "libyaml"
-  depends_on "libzip"
-  depends_on "lz4"
-  depends_on "mesa"
-  depends_on "metis"
-  depends_on "octomap"
-  depends_on "ode"
-  depends_on "osrf/simulation/ogre1.9"
-  depends_on "osrf/simulation/ogre2.3"
-  depends_on "ompl"
-  depends_on "opencv"
-  depends_on "openssl@3"
-  depends_on "openvdb"
-  depends_on "pcl"
-  depends_on "python@3.11"
-  depends_on "qhull"
-  depends_on "qt@5"
-  depends_on "qtbase"
-  depends_on "spdlog"
-  depends_on "suite-sparse"
-  depends_on "tbb"
-  depends_on "tinyxml2"
-  depends_on "urdfdom"
-  depends_on "vtk"
-  depends_on "zeromq"
-  depends_on "zstd"
-  
+  # No Homebrew formulae at RUN time: every library the tree links, and every Qt plugin
+  # and QML module it dlopens, ships inside the keg under vendor/ (ci/deploy/package_tree.py
+  # in idesign0/ros2_macOS). Verified by its package-smoke workflow: 0 Homebrew formulae
+  # load at run time, gz physics steps, ros_gz_bridge relays, rviz2's Qt comes from vendor/.
+  # The 57 depends_on this used to carry were the BUILD machine's link set; installing them
+  # only added a second copy of Qt, VTK, OpenCV, PCL... that nothing in the keg loads.
+  depends_on arch: :arm64
+
+  # Vendored dylibs keep their @rpath install names where the header has no room for
+  # the absolute one (the committed boost-1.89 build); without this, brew's relocation
+  # aborts the install with MachO::HeaderPadError. Every other dylib already carries
+  # the ID brew would set.
+  preserve_rpath
+
+  # Homebrew's cleaner deletes every .la file in a keg. GraphicsMagick (vendored for
+  # nav2 map_server and others) loads each image coder through its .la via libltdl
+  # (vendor/lib/GraphicsMagick/modules-Q16/coders/pnm.la ...); without them it reports
+  # "No decode delegate for this image format" and map_server cannot read a .pgm map.
+  skip_clean :la
+
   # The console scripts hard-code this interpreter in their shebang (26 of them in the
   # jazzy keg), so if it is absent the failure surfaces much later and cryptically:
   #   zsh: .../bin/ros2: bad interpreter:
@@ -114,62 +82,6 @@ class Ros2Humble < Formula
         Homebrew's python@3.11 will not work -- see the tap README.
       MSG
     end
-
-    ohai "Checking for stale versioned library references..."
-    fixed = 0
-    patched = []
-
-    Dir.glob("#{lib}/**/*.dylib").reject { |f| File.symlink?(f) }.each do |our_lib|
-      Utils.popen_read("otool", "-L", our_lib).each_line do |line|
-        dep_path = line.strip.split.first
-        next unless dep_path&.start_with?("#{HOMEBREW_PREFIX}/opt/")
-        next if dep_path.start_with?(opt_prefix.to_s)
-        next if File.exist?(dep_path)
-
-        dep_dir  = Pathname(dep_path).dirname
-        dep_name = Pathname(dep_path).basename.to_s
-        base     = dep_name.sub(/(\.\d+)+\.dylib$/, "")
-
-        actual = dep_dir.glob("#{base}.*.dylib").reject(&:symlink?).first
-        next unless actual
-
-        system "install_name_tool", "-change", dep_path, actual.to_s, our_lib
-        patched << our_lib unless patched.include?(our_lib)
-        ohai "Fixed: #{dep_name} → #{actual.basename} in #{File.basename(our_lib)}"
-        fixed += 1
-      end
-    end
-
-    if fixed > 0
-      ohai "Fixed #{fixed} stale reference(s). Re-signing #{patched.size} patched library/libraries..."
-      patched.each do |f|
-        system "codesign", "--force", "--sign", "-", f
-      end
-    end
-
-    # Add absolute RPATHs for vendor libs to fix dlopen security policy issue.
-    # macOS Hardened Runtime blocks @loader_path expansion for plugins loaded via dlopen.
-    ohai "Adding absolute vendor lib RPATHs for dlopen compatibility..."
-    vendor_fixed = 0
-    
-    Dir.glob("#{opt_prefix}/opt/**/lib").select { |d| File.directory?(d) }.each do |vendor_dir|
-      vendor_libs = Dir.glob("#{vendor_dir}/*.dylib").map { |f| File.basename(f) }
-      next if vendor_libs.empty?
-    
-      Dir.glob("#{lib}/**/*.{dylib,so}").reject { |f| File.symlink?(f) }.each do |our_lib|
-        refs = Utils.popen_read("otool", "-L", our_lib).lines.map { |l| l.strip.split.first }
-        next unless refs.any? { |r| r&.start_with?("@rpath/") && vendor_libs.include?(File.basename(r.to_s)) }
-    
-        existing = Utils.popen_read("otool", "-l", our_lib).scan(/path (.+) \(offset/).flatten
-        next if existing.include?(vendor_dir)
-    
-        system "install_name_tool", "-add_rpath", vendor_dir, our_lib
-        system "codesign", "--force", "--sign", "-", our_lib
-        vendor_fixed += 1
-      end
-    end
-    
-    ohai "Added absolute vendor RPATHs to #{vendor_fixed} library/libraries." if vendor_fixed > 0
   end
 
   def caveats
@@ -180,24 +92,36 @@ class Ros2Humble < Formula
       If you linked it previously, undo that once with:
         brew unlink #{name}
 
-      Source ROS 2 environment:
+      Add to ~/.zshrc (in this order), then open a new terminal:
+
+        # python.org 3.11 (pip3.11, colcon); skip if `which pip3.11` already works
+        export PATH="/Library/Frameworks/Python.framework/Versions/3.11/bin:$PATH"
+
+        # ROS 2 Humble
         source #{opt_prefix}/setup.zsh
 
-      colcon argcomplete (must come after ROS source, needs bashcompinit for zsh)
+        # colcon tab completion (after the source line)
         autoload bashcompinit && bashcompinit
         eval "$(register-python-argcomplete colcon)"
-  
-      Add the following to your ~/.zshrc (or ~/.bashrc) for Gazebo Sim Setup:
-        export GZ_SIM_SYSTEM_PLUGIN_PATH=/opt/homebrew/opt/ros2-humble/lib/gz-sim-8/plugins:/opt/homebrew/opt/ros2-humble/lib
-        export GZ_SIM_PHYSICS_ENGINE_PATH=#{opt_prefix}/lib/gz-physics-7/engine-plugins
-        export GZ_SIM_RESOURCE_PATH=#{opt_prefix}/share/gz/gz-sim8/worlds:#{opt_prefix}/share/gz/gz-sim8/models
-        export GZ_GUI_PLUGIN_PATH=#{opt_prefix}/lib/gz-sim-8/plugins/gui:#{opt_prefix}/lib/gz-gui-8/plugins
-        export QML2_IMPORT_PATH=#{opt_prefix}/lib/gz-sim-8/plugins/gui
-        export GZ_RENDERING_PLUGIN_PATH=#{opt_prefix}/lib/gz-rendering-8/engine-plugins
-        export GZ_RENDERING_RESOURCE_PATH=#{opt_prefix}/share/gz/gz-rendering8
+
+        # Cyclone DDS, the most reliable middleware for big launches (Nav2, MoveIt)
+        export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+        # all nodes on this Mac: loopback
+        export CYCLONEDDS_URI='<CycloneDDS><Domain><General><Interfaces><NetworkInterface name="lo0" multicast="true"/></Interfaces></General><Discovery><ParticipantIndex>none</ParticipantIndex></Discovery></Domain></CycloneDDS>'
+        # nodes on other machines too: use your network interface instead of lo0
+        # (find it with: route get default | grep interface), e.g. en0:
+        # export CYCLONEDDS_URI='<CycloneDDS><Domain><General><Interfaces><NetworkInterface name="en0" multicast="true"/></Interfaces></General><Discovery><ParticipantIndex>none</ParticipantIndex></Discovery></Domain></CycloneDDS>'
+        # do not combine with ROS_LOCALHOST_ONLY=1
 
       Required Python dependencies (install once, into the python.org 3.11):
-      pip3.11 install empy==3.3.4 lark==1.1.1 catkin_pkg netifaces osrf-pycommon PyYAML packaging psutil typeguard jinja2 lxml numpy
+        pip3.11 install empy==3.3.4 lark==1.1.1 catkin_pkg netifaces osrf-pycommon PyYAML packaging psutil typeguard jinja2 lxml numpy argcomplete typing_extensions
+
+      Gazebo needs no extra exports: setup.zsh sets the plugin, resource and install-prefix
+      paths for the gz copy inside this keg. Exports from older caveats (GZ_SIM_*_PATH,
+      GZ_CONFIG_PATH, QML2_IMPORT_PATH, ...) point at a second gz copy -- remove them.
+
+      Building your own packages needs cmake ninja pkgconf (brew install ...) and
+      whatever headers find_package() reports missing; nothing is needed just to run ROS 2.
     EOS
   end
 end
